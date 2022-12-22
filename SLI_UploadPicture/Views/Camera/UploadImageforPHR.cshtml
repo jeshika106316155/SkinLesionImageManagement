@@ -1,0 +1,291 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebcamJS Test Page</title>
+    <link href="/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style type="text/css">
+
+        body {
+            font-family: Helvetica, sans-serif;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+        }
+
+        form {
+            margin-top: 15px;
+        }
+
+            form > input {
+                margin-right: 15px;
+            }
+
+
+        #buttonhide {
+            background: transparent;
+            border: none !important;
+            font-size: 0;
+        }
+    </style>
+
+</head>
+<body class="container">
+    <div class="panel-heading">
+        <h1>@ViewBag.Title</h1>
+    </div>
+    <div id="encounterInfo">
+        <table class="table">
+            <tr>
+                <td> Encounter ID：</td>
+                <td><input type="text" id="encounterID" value="48cd3a88-923a-42c4-9a10-e701c051d698" /></td>
+            </tr>
+            <tr>
+                <td> Date：</td>
+                <td><input type="date" disabled id="DateInput" /></td>
+            </tr>
+            <tr>
+                <td> @ViewBag.Author：</td>
+                <td><input type="text" id="practitionerID" value="88df8172-9f58-4a0f-bcca-bcdcd5ea6485" /></td>
+            </tr>
+            <tr>
+                <td> Patient ID：</td>
+                <td><input type="text" id="patientID" value="88df8172-9f58-4a0f-bcca-bcdcd5ea6485" /></td>
+            </tr>
+            <tr>
+                <td> Image: </td>
+                <td style="display:flex">
+                    <div id="webcam_block" class="panel-body" style="display:none;border: solid 1px;align-content:center">
+                        <div id="my_camera"></div>
+                        <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()" style="width:100%">
+                    </div>
+                    <div>
+                        <input type="button" id="TakePhotoButton" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
+                        <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
+                    </div>
+                </td>
+            </tr>
+            @*<tr>
+            <td> Condition: </td>
+            <td style="display:flex">
+            <input type="text" id="ConditionID" value="" /><input type="button" class="btn btn-success" value="Write Condition" onClick="create_condition()">
+            </td>
+            </tr>*@
+            <tr><td colspan="2" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Create Report" onClick="create_report()"></td></tr>
+            <tr>
+                <td colspan="2">
+                    <table id="captured_image_table"></table>
+                </td>
+            </tr>
+        </table>
+        <br />
+    </div>
+    <!-- First, include the Webcam.js JavaScript Library -->
+    <script src="/webcamjs/webcam.js"></script>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <!-- Configure a few settings and attach camera -->
+    <script language="JavaScript">
+        Webcam.set({
+            width: 440,
+            height: 330,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        Webcam.attach('#my_camera');
+    </script>
+
+    <!-- Code to handle taking the snapshot and displaying it locally -->
+    <script language="JavaScript">
+        $('#DateInput').val(new Date().toISOString().split('T')[0]);
+        if ('@ViewBag.Title' == "Skin Lesion Image Record Creator - Upload Picture") {
+            $.ajax({
+                type: "POST",
+                url: '/Camera/UploadEncounter',
+                contentType: "application/json",
+                dataType: 'json',
+                processData: false,
+                success: function (response) {
+                    console.log(response)
+                    $('#encounterID').val(response.id);
+                },
+                error: function (error) {
+                    alert("Post documentReference error: " + error);
+                }
+            });
+        }
+        function take_snapshot() {
+            var encounterId = document.getElementById("encounterID").value;
+            // take snapshot and get image data
+            Webcam.snap(function (data_uri) {
+                // display results in page
+                Webcam.upload(data_uri,
+                    '/Camera/CaptureImg?encounterId=' + encounterId,
+                    function (code, text) {
+                        alert('Photo Captured');
+                        //Display image on table
+                        display_img_table();
+                    });
+
+            });
+        }
+        function display_webcam() {
+            if (document.getElementById("TakePhotoButton").value == "Take Photo") {
+                document.getElementById("TakePhotoButton").value = "Close Camera";
+                document.getElementById("webcam_block").style.display = "block";
+            }
+            else {
+                document.getElementById("TakePhotoButton").value = "Take Photo";
+                document.getElementById("webcam_block").style.display = "none";
+            }
+        }
+        function display_img_table() {
+            var encounterId = document.getElementById("encounterID").value;
+            var folder = "/CameraPhotos/" + encounterId + "/";
+            //var json = {
+            //    "encounterId":encounterId
+            //}
+            $.ajax({
+                type: "POST",
+                url: 'GetCameraPhotos?encounterId=' + encounterId,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data != null) {
+                        //alert('Photo Captured');
+                        //display_img_table();
+                        document.getElementById("captured_image_table").innerHTML = "";
+                        var imange_list = data.toString().split(',');
+                        var newtr;
+                        for (var i = 0; i < imange_list.length; i++) {
+                            if (i % 4 == 0) {
+                                newtr = document.createElement('tr');
+                            }
+                            var newtd = document.createElement('td');
+                            var elementid = document.getElementsByTagName("td").length
+                            var imagePath = folder + imange_list[i];
+                            newtd.innerHTML = '<div style="position: relative; top: 4px; right: 5px"><img src="/assets/img/deleteicon.png" style="position: absolute; top: 4px; right: 5px;width:30px;height:30px" id="' + imagePath.toString() + '" onclick="delete_image(this.id)"><img src="' +
+                                folder + imange_list[i] +
+                                '" style="width:360px;height:270px"/></div>';
+                            newtr.appendChild(newtd);
+                            document.getElementById("captured_image_table").appendChild(newtr);
+                        }
+                    }
+                    else {
+                        alert('No Response...!');
+                    }
+                },
+                error: function (error) {
+                    alert("error");
+                }
+            });
+        }
+        function browse_image() {
+            document.getElementById("webcam_block").style.display = "none";
+            $('#my-file').click();
+        }
+        function store_image() {
+            try {
+                var encounterId = document.getElementById("encounterID").value;
+                var formData = new FormData();
+                var totalFiles = document.getElementById('my-file').files.length;
+                for (var i = 0; i < totalFiles; i++) {
+                    var file = document.getElementById('my-file').files[i];
+                    formData.append("oHttpPostedFileBase", file);
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '/Camera/CaptureImg?encounterId=' + encounterId,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response != null) {
+                            //alert('Photo Captured');
+                            display_img_table();
+                        }
+                        else {
+                            alert('No Response...!');
+                        }
+                    },
+                    error: function (error) {
+                        alert("error");
+                    }
+                });
+            } catch (e) {
+                alert("File Upload Error" + e.message);
+            }
+        }
+        function delete_image(imagePath) {
+            var answer = window.confirm("Do you want to delete image?");
+            if (answer) {
+                try {
+                    $.ajax({
+                        type: "POST",
+                        url: '/Camera/DeleteImage?filePath=' + imagePath,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response != null) {
+                                alert('Photo Deleted');
+                                //Display image on table
+                                display_img_table();
+                            }
+                            else {
+                                alert('No Response...!');
+                            }
+                        },
+                        error: function (error) {
+                            alert("error");
+                        }
+                    });
+                } catch (e) {
+                    alert("File Delete Error" + e.message);
+                }
+            }
+        }
+        function create_report() {
+            var encounterInfo = {
+                "encounterID": document.getElementById("encounterID").value,
+                "patientID": document.getElementById("patientID").value,
+                "uploaderID": "Patient/" + document.getElementById("practitionerID").value,
+                "serviceName": "",
+                "organizationID": ""
+            };
+            //var encounterId = document.getElementById("encounterID").value;
+            // Create document reference
+            $.ajax({
+                type: "POST",
+                url: '/Camera/UploadDocumentReference',
+                data: JSON.stringify(encounterInfo),
+                contentType: "application/json",
+                dataType: 'json',
+                processData: false,
+                success: function (response) {
+                    console.log(response)
+                    alert("Pictures uploaded!");
+                },
+                error: function (error) {
+                    alert("Post documentReference error: " + error);
+                }
+            });
+            // Redirect to rport creator
+        }
+    </script>
+
+</body>
+</html>

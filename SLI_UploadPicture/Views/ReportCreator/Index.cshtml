@@ -1,0 +1,83 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebcamJS Test Page</title>
+    <link href="/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style type="text/css">
+
+        body {
+            font-family: Helvetica, sans-serif;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+        }
+
+        form {
+            margin-top: 15px;
+        }
+
+            form > input {
+                margin-right: 15px;
+            }
+
+
+        #buttonhide {
+            background: transparent;
+            border: none !important;
+            font-size: 0;
+        }
+    </style>
+
+</head>
+<body class="container">
+    <div class="panel-heading">
+        <h1>ENCOUNTER REPORT CREATOR - Annotation</h1>
+    </div>
+    <div id="encounterInfo">
+        <table class="table">
+            <tr>
+                <td> Encounter ID：</td>
+                <td><input type="text" id="encounterID" value="123" /></td>
+            </tr>
+            <tr>
+                <td> Practitioner ID：</td>
+                <td><input type="text" id="practitionerID" /></td>
+            </tr>
+            <tr>
+                <td> Patient ID：</td>
+                <td><input type="text" id="patientID" /></td>
+            </tr>
+            <tr>
+                <td> Image: </td>
+                <td style="display:flex">
+                    <div id="webcam_block" class="panel-body" style="display:none;border: solid 1px;align-content:center">
+                        <div id="my_camera"></div>
+                        <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()" style="width:100%">
+                    </div>
+                    <div>
+                        <input type="button" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
+                        <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="2" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Create Report" onClick="create_report()"></td></tr>
+            <tr>
+                <td colspan="2">
+                    <table id="captured_image_table"></table>
+                </td>
+            </tr>
+        </table>
+        <br />
+    </div>
+    </body>
+    </html>
