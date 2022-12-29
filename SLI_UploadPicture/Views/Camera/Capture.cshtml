@@ -2,9 +2,10 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    
     Layout = null;
 }
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,7 +76,7 @@
                         </div>
                         <div>
                             <input type="button" id="TakePhotoButton" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
-                            <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
+                        <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg" multiple><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
                     </div>
                         </td>
                     </tr>
@@ -156,7 +157,7 @@
         }
         function display_img_table() {
             var encounterId = document.getElementById("encounterID").value;
-            var folder = "/CameraPhotos/" + encounterId + "/";
+            //var folder = "/CameraPhotos/" + encounterId + "/";
             //var json = {
             //    "encounterId":encounterId
             //}
@@ -169,23 +170,24 @@
                 success: function (data) {
                     if (data != null) {
                         //alert('Photo Captured');
-                        //display_img_table();
                         document.getElementById("captured_image_table").innerHTML = "";
                         var imange_list = data.toString().split(',');
                         var newtr;
                         for (var i = 0; i < imange_list.length; i++) {
-                            if (i % 4 == 0) {
-                                newtr = document.createElement('tr');
+                            if (imange_list[i] != "") {
+                                if (i % 4 == 0) {
+                                    newtr = document.createElement('tr');
+                                }
+                                var newtd = document.createElement('td');
+                                var elementid = document.getElementsByTagName("td").length
+                                var imagePath = @Json.Serialize(@Configuration.GetSection("http_SLIUrl").Value) + encounterId + "/" + imange_list[i];
+                                newtd.innerHTML = '<div style="position: relative; top: 4px; right: 5px"><img src="/assets/img/deleteicon.png" style="position: absolute; top: 4px; right: 5px;width:30px;height:30px" id="' + encounterId + "/" + imange_list[i] + '" onclick="delete_image(this.id)"><img src="' +
+                                    imagePath +
+                                    '" style="width:360px;height:270px"/></div>';
+                                newtr.appendChild(newtd);
+                                document.getElementById("captured_image_table").appendChild(newtr);
                             }
-                            var newtd = document.createElement('td');
-                            var elementid = document.getElementsByTagName("td").length
-                            var imagePath = folder + imange_list[i];
-                            newtd.innerHTML = '<div style="position: relative; top: 4px; right: 5px"><img src="/assets/img/deleteicon.png" style="position: absolute; top: 4px; right: 5px;width:30px;height:30px" id="' + imagePath.toString() + '" onclick="delete_image(this.id)"><img src="' +
-                                folder + imange_list[i] +
-                                '" style="width:360px;height:270px"/></div>';
-                            newtr.appendChild(newtd);
-                            document.getElementById("captured_image_table").appendChild(newtr);
-                    }
+                        }
                     }
                     else {
                         alert('No Response...!');
@@ -282,6 +284,7 @@
                 success: function (response) {
                     console.log(response)
                     alert("Pictures uploaded!");
+                    window.location.href = '/ReportCreator?DocumentReferenceId=' + response.id;
                 },
                 error: function (error) {
                     alert("Post documentReference error: "+ error);

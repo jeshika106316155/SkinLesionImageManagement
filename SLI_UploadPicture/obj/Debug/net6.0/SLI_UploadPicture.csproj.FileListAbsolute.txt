@@ -70,3 +70,5 @@ D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_Uplo
 D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_UploadPicture\obj\Debug\net6.0\SLI_UploadPicture.pdb
 D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_UploadPicture\obj\Debug\net6.0\SLI_UploadPicture.genruntimeconfig.cache
 D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_UploadPicture\obj\Debug\net6.0\ref\SLI_UploadPicture.dll
+D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_UploadPicture\bin\Debug\net6.0\Renci.SshNet.dll
+D:\Jeshika\Research\SkinLesionImageManagement\SkinLesionImageManagement\SLI_UploadPicture\bin\Debug\net6.0\SshNet.Security.Cryptography.dll

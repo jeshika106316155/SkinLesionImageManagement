@@ -9,39 +9,60 @@ namespace SLI_UploadPicture.Models
     {
         public object getResource(string fhirUrl, string ResourceName, string Parameter, string FHIRResponseType) //, Action <object> CallbackFunc
         {
+            dynamic errmsg = new JObject();
+
             try
             {
                 ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-                var requestHttp = (HttpWebRequest)WebRequest.Create(fhirUrl + ResourceName + Parameter);
+                var requestHttp = (HttpWebRequest)WebRequest.Create(fhirUrl + ResourceName + "/" +Parameter);
                 requestHttp.ContentType = "application/json";
                 requestHttp.Method = "GET";
-                var response = (HttpWebResponse)requestHttp.GetResponse();
-                if (response.StatusCode == HttpStatusCode.OK)
+                HttpWebResponse response;
+                string er = "";
+                try
                 {
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
+                    response = (HttpWebResponse)requestHttp.GetResponse();
+                    if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        var result = streamReader.ReadToEnd();
-                        JObject resultJson = JObject.Parse(result);
-
-                        //var id = resultJson["id"];
-                        //if (CallbackFunc != null)
-                        //{
-                        //    CallbackFunc(resultJson);
-                        //}
-                        return resultJson;
+                        using (var streamReader = new StreamReader(response.GetResponseStream()))
+                        {
+                            var result = streamReader.ReadToEnd();
+                            JObject resultJson = JObject.Parse(result);
+                            return new OkObjectResult(result);
+                            //CallbackFunction(resultJson, token);
+                            //return callbackResult;
+                        }
                     }
                 }
-                else
-                {
-                    //reqMessage = "Error upload to FHIR Server!"; 
-                    return JObject.Parse("{'total':0;'message':'Error upload to FHIR Server!'}");
-                }
-            }
+                catch (Exception e) { er = e.Message; return new BadRequestObjectResult(errmsg); }
+        //        var response = (HttpWebResponse)requestHttp.GetResponse();
+        //        if (response.StatusCode == HttpStatusCode.OK)
+        //        {
+        //            using (var streamReader = new StreamReader(response.GetResponseStream()))
+        //            {
+        //                var result = streamReader.ReadToEnd();
+        //                JObject resultJson = JObject.Parse(result);
+
+        //                //var id = resultJson["id"];
+        //                //if (CallbackFunc != null)
+        //                //{
+        //                //    CallbackFunc(resultJson);
+        //                //}
+        //                return resultJson;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //reqMessage = "Error upload to FHIR Server!"; 
+        //        er = e.Message; return new BadRequestObjectResult(errmsg);
+        //}
+    }
             catch (Exception e)
             {
-                return JObject.Parse("{'total':0;'message':'Error request to FHIR Server!'}");
+                errmsg.Message = e.Message;
+                return new BadRequestObjectResult(errmsg);
             }
             return JObject.Parse("{'total':0;'message':'Error request to FHIR Server!'}");
         }

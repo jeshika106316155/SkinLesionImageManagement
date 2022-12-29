@@ -2,7 +2,11 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    Layout = null;
 }
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject IJsonHelper Json;
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,72 +16,763 @@
     <title>WebcamJS Test Page</title>
     <link href="/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style type="text/css">
-
-        body {
-            font-family: Helvetica, sans-serif;
-        }
-
-        h2, h3 {
-            margin-top: 0;
-        }
-
-        form {
-            margin-top: 15px;
-        }
-
-            form > input {
-                margin-right: 15px;
-            }
-
-
-        #buttonhide {
-            background: transparent;
-            border: none !important;
-            font-size: 0;
-        }
-    </style>
+    <link href="/css/reportCreator.css" rel="stylesheet" />
 
 </head>
-<body class="container">
-    <div class="panel-heading">
-        <h1>ENCOUNTER REPORT CREATOR - Annotation</h1>
+<body >
+    <div class="header">
+        <h1 style="color: gold;">REPORT CREATOR</h1>
     </div>
-    <div id="encounterInfo">
-        <table class="table">
+    <div class="basicInformation">
+        <table align="center" class="table" style="color: gold;width:80%">
             <tr>
-                <td> Encounter ID：</td>
-                <td><input type="text" id="encounterID" value="123" /></td>
-            </tr>
-            <tr>
-                <td> Practitioner ID：</td>
-                <td><input type="text" id="practitionerID" /></td>
-            </tr>
-            <tr>
-                <td> Patient ID：</td>
-                <td><input type="text" id="patientID" /></td>
-            </tr>
-            <tr>
-                <td> Image: </td>
-                <td style="display:flex">
-                    <div id="webcam_block" class="panel-body" style="display:none;border: solid 1px;align-content:center">
-                        <div id="my_camera"></div>
-                        <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()" style="width:100%">
-                    </div>
-                    <div>
-                        <input type="button" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
-                        <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
-                    </div>
-                </td>
-            </tr>
-            <tr><td colspan="2" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Create Report" onClick="create_report()"></td></tr>
-            <tr>
-                <td colspan="2">
-                    <table id="captured_image_table"></table>
-                </td>
+                <td>Encounter ID：<input type="text" id="encounterID" value="123" /></td>
+                <td>Practitioner ID：<input type="text" id="practitionerID" /></td>
+                <td>Patient ID：<input type="text" id="patientID" /></td>
             </tr>
         </table>
-        <br />
+    </div>
+    <div id="body" style="background-color:#202020;">
+        <div class="column" style="background-color:#202020; width: 11%;">
+            <ul id="nav">
+                <li>
+                    <img alt="Window Level" title="Window Level" id="windowLevel" src="\assets\img\windowLevel.png" class="imgIcon">
+                    <ul class="ddl1" style="width: 100px;">
+                        <li onclick="windowLW()" class="fontSize">Adjust</li>
+                        <li onclick="showRecord()" class="fontSize">Insert Value</li>
+                    </ul>
+                </li>
+                <li id="AnnotationList">
+                    <img alt="Annotation" title="Annotation" id="annotation" class="imgIcon" src="\assets\img\annotation.png">
+                    <ul class="ddl2" style="width: 100px; ">
+                        <li onclick="Text('AnnotationList',this)" class="fontSize">Text</li>
+                        <li onclick="Line('AnnotationList',this)" class="fontSize">Line</li>
+                        <li onclick="Rect('AnnotationList',this)" class="fontSize">Rectangle</li>
+                        <li onclick="Ellipse('AnnotationList',this)" class="fontSize">Ellipse</li>
+                    </ul>
+                </li>
+                <li id="StrokeWidthList">
+                    <img alt="Stroke Width" title="Stroke Width" id="strokeWidth" src="\assets\img\strokeWidth.png" class="imgIcon">
+                    <ul class="ddl3" style="width: 100px;">
+                        <li value="1" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel1.png"></li>
+                        <li value="2" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel2.png"></li>
+                        <li value="3" onclick="strokeWidth('StrokeWidthList',value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel3.png"></li>
+                        <li value="4" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel4.png"></li>
+                        <li value="5" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel5.png"></li>
+                        <li value="6" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel6.png"></li>
+                        <li value="7" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel7.png"></li>
+                        <li value="8" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel8.png"></li>
+                        <li value="9" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel9.png"></li>
+                        <li value="10" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel10.png"></li>
+                    </ul>
+                </li>
+                <li id="StrokeColorList">
+                    <img alt="Stroke Color" title="Stroke Color" id="strokeColor" src="\assets\img\strokeColor.png" class="imgIcon">
+                    <ul class="ddl4" style="width: 100px;">
+                        <li style="height: 40px;"><input type="color" onchange="strokeColor('StrokeColorList',this.value)" value="#000000" style="width:85px; display: block; margin:8px 4px;"></li>
+                    </ul>
+                </li>
+                <li id="ZoomList">
+                    <img alt="Zoom Slider" title="Zoom" src="\assets\img\zoom.png" class="imgIcon">
+                    <ul class="ddl5" style="width: 100px;">
+                        <li onclick="zoom('ZoomList',this,0)" class="fontSize">Fill Viewport</li>
+                        <li onclick="zoom('ZoomList',this,1)" class="fontSize">1x</li>
+                        <li onclick="zoom('ZoomList',this,2)" class="fontSize">2x</li>
+                        <li onclick="zoom('ZoomList',this,4)" class="fontSize">4x</li>
+                        <li onclick="zoom('ZoomList',this,8)" class="fontSize">8x</li>
+                    </ul>
+                </li>
+                <li id="PanList" onclick="Pan(this)">
+                    <img alt="Panning" title="Pan" id="fileSource" src="\assets\img\pan.png" class="imgIcon">
+                </li>
+                <li id="UploadtoFHIR" onclick="educationalPlatform()"><img alt="Upload to FHIR" title="Upload to FHIR" id="UploadtoFHIR" src="\assets\img\educationalTraining.svg" class="imgIcon"></liid>
+                <li id="CreateDiagnosticReport" onclick="createDReport()" id="DR_createbutton"><img alt="Create Diagnostic Report" title="Create Diagnostic Report" id="CreateDiagnosticReport" src="\assets\img\fileSource.png" class="imgIcon"></li>
+                <div id="textAnnotation" style="display:none; position: absolute; top:400px; z-index: 1;">
+                    <font color="white">Text:</font> &nbsp;<input type="text" size="16" id="typeText" class="typeText" onkeypress="return writeText(event)">
+                </div>
+            </ul>
+        </div>
+        <div id="middleCol" class="column" style="background-color:#202020; width: 59.5%;">
+            <div id="allcanvas" style="width: 900px; height: 600px;">
+                <canvas id="myCanvas" width="900" height="600"></canvas>
+                <canvas id="drawCanvas" width="900" height="600"></canvas>
+                <div id="ratioInfo" class="overlay" style="position:absolute;bottom:1%;left:1%; color: white;">Ratio: 1</div>
+                <div id="windowLevelInfo" class="overlay" style="position:absolute;bottom:1%;right:1%; color: white;">WW/ WC: 4096/ 2047</div>
+            </div>
+            <div id="annotationList">
+                <br />
+                <table id="myTable" style="color:white">
+                    <thead>
+                        <tr style="background-color:white; font-weight:bold; color: black;">
+                            <th>Type Annotation</th>
+                            <th>SVG Annotation</th>
+                            <th>Post Annotation</th>
+                            <th>Finding Type</th>
+                            <th>Finding ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <br />
+                <table class="table">
+                    <tr>
+                        <td> Encounter ID：</td>
+                        <td><input type="text" id="encounterID" value="123" /></td>
+                    </tr>
+                    <tr>
+                        <td> Practitioner ID：</td>
+                        <td><input type="text" id="practitionerID" /></td>
+                    </tr>
+                    <tr>
+                        <td> Patient ID：</td>
+                        <td><input type="text" id="patientID" /></td>
+                    </tr>
+                    <tr>
+                        <td> Image: </td>
+                        <td style="display:flex">
+                            <div id="webcam_block" class="panel-body" style="display:none;border: solid 1px;align-content:center">
+                                <div id="my_camera"></div>
+                                <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()" style="width:100%">
+                            </div>
+                            <div>
+                                <input type="button" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
+                                <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Create Report" onClick="create_report()"></td></tr>
+                    <tr>
+                        <td colspan="2">
+                            <table id="captured_image_table"></table>
+                        </td>
+                    </tr>
+                </table>
+                <br />
+            </div>
+        </div>
+        <div class="column" style="background-color:#202020; width: 29.5%;">
+            <table id="imageListTable" align="right" style="color: gold;background-color:black;text-align:center"></table>
+        </div>
+        
     </div>
     </body>
+    <script language="JavaScript">
+
+    //Display images to imageListTable
+    var imageListTable = document.getElementById('imageListTable');
+    var previmgclicked="";
+    var firstTr = document.createElement('tr');
+    var firstTd = document.createElement('td');
+    firstTd.innerHTML = "Images";
+    firstTr.appendChild(firstTd);
+    imageListTable.appendChild(firstTr);
+    var array = @Json.Serialize(@ViewBag.images);
+    for (var i = 0; i < array.length; i++) {
+        var newTr = document.createElement('tr');
+        var newTd = document.createElement('td');
+        var img = document.createElement('img');
+        img.src = array[i];
+        img.onclick = function () { selectImg(this);}; 
+        img.style.height = '100px';
+        img.style.width = '100px';
+        newTd.appendChild(img);
+        newTr.appendChild(newTd);
+        imageListTable.appendChild(newTr);
+    }
+    //end Display images to imageListTable
+
+    //canvas
+    var canvas = document.getElementById("myCanvas"),
+        ctx = canvas.getContext("2d");
+    var drawCanvas = document.getElementById("drawCanvas"),
+        drawCtx = drawCanvas.getContext("2d");
+    //end canvas
+
+    //Display image to canvas
+    var canvasWidth = 900, canvasHeight = 600;
+    document.getElementById("allcanvas").style.width = canvasWidth;
+    document.getElementById("allcanvas").style.height = canvasHeight;
+    var img;
+    var sourceImage = {
+        width: 0,
+        height: 0
+    }
+    var scaledImage = {
+        width: 0,
+        height: 0,
+        prevWidth: 0,
+        prevHeight: 0
+    }
+    var scaleRatio;	//scaledImage.width/ sourceImage.width
+    var fitCanvasRatio;
+    var PanX, PanY, imgPanX,imgPanY;
+    var pixelDataOffset, modalityType, UID;
+    var storedBytes, samplesPerPixel; //data dicom, samplesPerPixel 1 =b&w
+    //end Display image to canvas
+
+    //Annotation
+    var paintLine = false,
+        paintRect = false,
+        paintPolygon = false,
+        paintEllipse = false,
+        typeText = false;
+    var x1, y1, x2, y2;
+    var allAnnotationSVG = "";
+    var line, rect, ellipse, polygon, text;
+    var svgLine = [], svgRect = [], svgEllipse = [], svgText = [];
+    var svgColor = "black",
+        svgStrokeWidth = 2,
+        svgFontType = "70px Arial";
+    //end Annotation
+    var lastLi=[]; //Last clicked li
+    modality = "MG";//Display annotation table
+    //ScrollZoom in canvas
+    document.getElementById("allcanvas").addEventListener("wheel", scrollZoom);
+    
+    //end Display annotation table
+    /**
+     * 
+     */
+    function setDefaultMode() {
+		scaledImage.width = sourceImage.width;
+		scaledImage.height = sourceImage.height;
+        PanX = 0, PanY = 0, imgPanX = 0, imgPanY = 0;
+		if (scaledImage.height > canvasHeight || scaledImage.width > canvasWidth) {
+			let scale1 = canvasWidth / sourceImage.width;
+			let scale2 = canvasHeight / sourceImage.height;
+			let scale = Math.min(scale1, scale2);
+
+			scaledImage.height *= scale;
+			scaledImage.width *= scale;
+		}
+        fitCanvasRatio = scaledImage.width / sourceImage.width;
+		scaledImage.prevWidth = canvasWidth;
+		scaledImage.prevHeight = canvasHeight;
+	}
+    /** */
+    function zoom(scale) {
+        if (scale == 0) scale = fitCanvasRatio;
+
+        scaleRatio = scale; //scaledImage.width/ sourceImage.width;
+        scaledImage.width = Math.round(sourceImage.width * scale);
+        scaledImage.height = Math.round(sourceImage.height * scale);
+        //PanX += (scaledImage.prevWidth - scaledImage.width) * (((canvasWidth / 2) - PanX) / scaledImage.prevWidth);
+        //PanY += (scaledImage.prevHeight - scaledImage.height) * (((canvasHeight / 2) - PanY) / scaledImage.prevHeight);
+        scaledImage.prevWidth = scaledImage.width;
+        scaledImage.prevHeight = scaledImage.height;
+        setPixel();
+        document.getElementById("ratioInfo").innerHTML = "Ratio: " + Math.round(scale * 100) / 100;
+    }
+    /** */
+    function setPixel() {
+        //document.getElementById("windowLevelInfo").innerHTML = "WW/ WC: " + windowWidth + "/ " + windowCenter;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        drawCanvas.width = canvasWidth;
+        drawCanvas.height = canvasHeight;
+        ctx.drawImage(img, PanX, PanY, img.width / (scaledImage.width / canvasWidth), img.height / (scaledImage.height / canvasHeight), 0, 0, canvas.width, canvas.height);
+        redrawAnnotation();
+    }
+
+    //zoom in and out slider
+    function scrollZoom(e) {
+         e.preventDefault();
+        if (e.wheelDelta < 0 || e.detail > 0) {
+            var temp = scaleRatio - 0.1;
+            if (temp < 0.1) scaleRatio = 0.1;
+            else scaleRatio = temp;
+        }
+        else scaleRatio = scaleRatio + 0.1;
+
+        zoom(scaleRatio);
+        return false; // Prevent page from scrolling
+    }
+    //Panning
+    var xx, yy, panning = false;
+    function Pan(object) {
+        clearLastLi();
+        if (object.style.backgroundColor == "") {
+            object.style.backgroundColor = "#999966";
+            lastLi=[];
+            lastLi.push(object);
+            drawCanvas.onmousedown = function (e) {
+                e.preventDefault();
+                panning = true;
+                xx = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft;
+                yy = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+            }
+
+            drawCanvas.onmousemove = function (e) {
+                e.preventDefault();
+                if (panning) {
+                    var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft;
+                    var y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+                    //panningFunc(x2, y2);
+                }
+            }
+
+            drawCanvas.onmouseup = function (e) {
+                e.preventDefault();
+                if (panning) {
+                    var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft;
+                    var y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+                    panningFunc(x2, y2);
+                    panning = false;
+                }
+            }
+        }
+        else{
+            object.style.backgroundColor = "";
+            drawCanvas.onmousedown = null;
+            drawCanvas.onmousemove = null;
+            drawCanvas.onmouseup = null;
+        }
+        
+    }
+    var panchangeX=0,panchangeY=0;
+    function panningFunc(xCoor, yCoor) {
+        var valuesX = xx - xCoor; //drag from left to right (x1< x2), sx will be minus value, krn makin ke kiri
+        var valuesY = yy - yCoor;
+        PanX += valuesX;
+        PanY += valuesY;
+        panchangeX = valuesX;
+        panchangeY = valuesY;
+        setPixel();
+       //redrawAnnotation();
+    }
+    //End of Panning
+
+    // Annotation
+    function strokeColor(color) {
+        svgColor = color;
+        ctx.strokeStyle = color;
+        drawCtx.strokeStyle = color;
+        ctx.fillStyle = color;
+    }
+
+    function strokeWidth(width) {
+        svgStrokeWidth = width;
+        ctx.lineWidth = width;
+        drawCtx.lineWidth = width;
+    }
+
+    function Text(parObject,thisObject) {
+        clearLastLi();
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966";
+            lastLi=[];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+            drawCanvas.onmousedown = function (e) {
+                typeText = true;
+                x1 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft; //e=mouse cursor, this=canvas original x,
+                y1 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+                document.getElementById("typeText").value = "";
+                showField("textAnnotation");
+            }
+        }
+        else{
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+            drawCanvas.onmousedown = null;
+        }
+    }
+
+    function writeText(event) {
+        if (event.which == 13 || event.keyCode == 13) { //13 means "enter"
+            var val = document.getElementById("typeText").value;
+            var fontType = svgFontType;
+            var font = parseInt(fontType.substr(0, 2)) * scaleRatio;
+            fontType = font + fontType.substr(2);
+            drawText(x1, y1, val, svgColor, fontType)
+            var svgTextContext=[];
+            svgTextContext.push((x1 - PanX) / scaleRatio);
+            svgTextContext.push((y1 - PanY) / scaleRatio);
+            svgTextContext.push(val);
+            svgTextContext.push(svgColor);
+            svgTextContext.push(svgFontType);
+            svgText.push(svgTextContext);
+            typeText = false;
+            showSVG();
+            showField("textAnnotation");
+        }
+    }
+
+    function drawText(x1, y1, val, color, fontstyle) {
+        ctx.beginPath();
+        ctx.font = fontstyle;
+        ctx.fillStyle = color;
+        ctx.fillText(val, x1, y1);
+    }
+
+    function Line(parObject, thisObject) {
+        clearLastLi();
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966"
+            lastLi=[];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+
+            drawCanvas.onmousedown = function (e) {
+            e.preventDefault();
+            paintLine = true;
+            x1 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft ; //e=mouse cursor, this=canvas original x,
+            y1 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+        }
+
+        drawCanvas.onmousemove = function (e) {
+            e.preventDefault();
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft ,
+                y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+            if (paintLine) {
+                drawLine(drawCtx, x1, y1, x2, y2, svgColor, svgStrokeWidth);
+
+                drawCtx.fillStyle = "red";
+                drawCtx.font = 1;
+                const powX = Math.pow((x2 - x1), 2);
+                const powY = Math.pow((y2 - y1), 2);
+                var length = Math.sqrt((powX + powY), 2);
+                length = (length).toFixed(2);
+                //drawCtx.fillText(length + 'mm', (x2 + x1) / 2, (y2 + y1) / 2);
+            }
+        }
+
+        drawCanvas.onmouseup = function (e) {
+            e.preventDefault();
+            paintLine = false;
+            var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft ,
+                y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+            drawLine(ctx, x1, y1, x2, y2, svgColor, svgStrokeWidth);
+
+            var svgLineContext = [];
+            svgLineContext.push((x1 + (PanX*scaleRatio)) / scaleRatio);
+            svgLineContext.push((y1 + (PanY*scaleRatio)) / scaleRatio);
+            svgLineContext.push((x2 + (PanX*scaleRatio)) / scaleRatio);
+            svgLineContext.push((y2 + (PanY*scaleRatio)) / scaleRatio);
+            svgLineContext.push(svgColor);
+            svgLineContext.push(svgStrokeWidth);
+            svgLine.push(svgLineContext);
+            showSVG();
+        }
+        }
+        else {
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+            drawCanvas.onmousedown = null;
+            drawCanvas.onmousemove = null;
+            drawCanvas.onmouseup = null;
+        }
+        
+    }
+
+    function drawLine(ctxType, x1, y1, x2, y2, color, strokewidth) {
+        ctxType.beginPath();
+        ctxType.strokeStyle = color;
+        ctxType.lineWidth = strokewidth;
+        ctxType.moveTo(x1, y1);
+        ctxType.lineTo(x2, y2);
+        ctxType.stroke();
+    }
+
+    function Rect(parObject, thisObject) {
+        clearLastLi();
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966";
+            lastLi=[];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+            drawCanvas.onmousedown = function (e) {
+                paintRect = true;
+                x1 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft; //e=mouse cursor, this=canvas original x,
+                y1 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+            }
+
+            drawCanvas.onmousemove = function (e) {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft,
+                    y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+
+                if (paintRect)
+                    drawRect(drawCtx, x1, y1, x2, y2, svgColor, svgStrokeWidth);
+            }
+
+            drawCanvas.onmouseup = function (e) {
+                paintRect = false;
+                var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft,
+                    y2 = e.pageY - document.getElementById("allcanvas").offsetTop - document.getElementById("middleCol").offsetTop;
+                drawRect(ctx, x1, y1, x2, y2, svgColor, svgStrokeWidth);
+
+                var svgRectContext = [];
+                svgRectContext.push((x1 + (PanX*scaleRatio)) / scaleRatio);
+                svgRectContext.push((y1 + (PanY*scaleRatio)) / scaleRatio);
+                svgRectContext.push((x2 + (PanX*scaleRatio)) / scaleRatio);
+                svgRectContext.push((y2 + (PanY*scaleRatio)) / scaleRatio);
+                svgRectContext.push(svgColor);
+                svgRectContext.push(svgStrokeWidth);
+                svgRect.push(svgRectContext);
+                showSVG();
+            }
+        }
+        else {
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+            drawCanvas.onmousedown = null;
+            drawCanvas.onmousemove = null;
+            drawCanvas.onmouseup = null;
+        }
+    }
+
+    function drawRect(ctxType, x1, y1, x2, y2, color, strokewidth) {
+        var width = x2 - x1,
+            height = y2 - y1;
+        ctxType.beginPath();
+        ctxType.strokeStyle = color;
+        ctxType.lineWidth = strokewidth;
+        ctxType.rect(x1, y1, width, height);
+        ctxType.stroke();
+    }
+
+    var rx, ry;
+    function Ellipse(parObject, thisObject) {
+        clearLastLi();
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966";
+            lastLi = [];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+        drawCanvas.onmousedown = function (e) {
+            paintEllipse = true;
+            x1 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft; //e=mouse cursor, this=canvas original x,
+            y1 = e.pageY - document.getElementById("allcanvas").offsetTop- document.getElementById("middleCol").offsetTop;
+        }
+
+        drawCanvas.onmousemove = function (e) {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft,
+                y2 = e.pageY - document.getElementById("allcanvas").offsetTop- document.getElementById("middleCol").offsetTop;
+            rx = Math.abs(x2 - x1);
+            ry = Math.abs(y2 - y1);
+
+            if (paintEllipse)
+                drawEllipse(drawCtx, x1, y1, rx, ry, svgColor, svgStrokeWidth);
+        }
+
+        drawCanvas.onmouseup = function (e) {
+            paintEllipse = false;
+            var x2 = e.pageX - document.getElementById("allcanvas").offsetLeft - document.getElementById("middleCol").offsetLeft,
+                y2 = e.pageY - document.getElementById("allcanvas").offsetTop- document.getElementById("middleCol").offsetTop;
+            rx = Math.abs(x2 - x1);
+            ry = Math.abs(y2 - y1);
+            drawEllipse(ctx, x1, y1, rx, ry, svgColor, svgStrokeWidth);
+
+            var svgEllipseContext = [];
+            svgEllipseContext.push((x1 + (PanX*scaleRatio)) / scaleRatio);
+            svgEllipseContext.push((y1 + (PanY*scaleRatio)) / scaleRatio);
+            svgEllipseContext.push(rx / scaleRatio);
+            svgEllipseContext.push(ry / scaleRatio);
+            svgEllipseContext.push(svgColor);
+            svgEllipseContext.push(svgStrokeWidth);
+            svgEllipse.push(svgEllipseContext);
+            showSVG();
+        }
+        }
+        else {
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+            drawCanvas.onmousedown = null;
+            drawCanvas.onmousemove = null;
+            drawCanvas.onmouseup = null;
+        }
+    }
+
+    function drawEllipse(ctxType, x1, y1, rx, ry, color, strokewidth) {
+        ctxType.lineWidth = strokewidth;
+        ctxType.strokeStyle = color;
+        ctxType.beginPath();
+        ctxType.ellipse(x1, y1, ry, rx, Math.PI / 2, 0, 2 * Math.PI); //x, y, major radiusX, minor radiusY, rotation, startAngle, endAngle
+        ctxType.stroke();
+    }
+
+    function redrawAnnotation() {
+        for (var i = 0; i < svgText.length; i++) {
+            var fontType = svgText[i][4];
+            var font = parseInt(fontType.substr(0, 2)) * scaleRatio;
+            fontType = font + fontType.substr(2);
+            drawText(((svgText[i][0] - PanX) * scaleRatio), (svgText[i][1] - PanY) *
+                scaleRatio, svgText[i][2], svgText[i][3], fontType);
+        }
+        for (var i = 0; i < svgLine.length; i++) {
+            drawLine(ctx, ((svgLine[i][0] - PanX) * scaleRatio), ((svgLine[i][1] - PanY) * scaleRatio), ((svgLine[i][2] - PanX ) * scaleRatio), ((svgLine[i][3] - PanY) * scaleRatio), svgLine[i][4], svgLine[i][5]);
+        }
+        for (var i = 0; i < svgRect.length; i++) {
+            drawRect(ctx, (svgRect[i][0] - PanX ) * scaleRatio, (svgRect[i][1] - PanY ) *
+                scaleRatio, (svgRect[i][2] - PanX ) * scaleRatio, (svgRect[i][3] - PanY ) * scaleRatio, svgRect[i][4], svgRect[i][5]);
+        }
+        for (var i = 0; i < svgEllipse.length; i++) {
+            drawEllipse(ctx, (svgEllipse[i][0] - PanX ) * scaleRatio, (svgEllipse[i][1] - PanY) * scaleRatio, svgEllipse[i][2] * scaleRatio, svgEllipse[i][3] * scaleRatio,
+                svgEllipse[i][4], svgEllipse[i][5]);
+        }
+    }
+    // end Annotation
+    // Display SVG table
+    var arr = ["textAnnotation"];
+    function showField(idVal) {
+        if (document.getElementById(idVal).style.display == "none")
+            document.getElementById(idVal).style.display = "block";
+        else
+            document.getElementById(idVal).style.display = "none";
+
+        for (var i = 0; i < arr.length; i++) {
+            if (idVal != arr[i])
+                document.getElementById(arr[i]).style.display = "none";
+        }
+    }
+
+    var lasttext = 0,
+        lastline = 0,
+        lastrect = 0,
+        lastellipse = 0;
+
+    function showSVG() {
+        var table = document.getElementById("myTable");
+        var svgstr;
+        var svghead = '<svg width="' + sourceImage.width + '" height="' + sourceImage.height + '">\n';
+        for (var i = lasttext; i < svgText.length; i++) {
+            svgstr = '<text x="' + parseInt(svgText[i][0]);
+            svgstr += '" y="' + parseInt(svgText[i][1]);
+            svgstr += '" fill="' + svgText[i][3];
+            svgstr += '" font-size="' + svgText[i][4].substr(0, 2) + '">';
+            svgstr += svgText[i][2] + '</text>\n';
+
+            tablelist(svghead + svgstr + '</svg>', table, "text");
+        }
+
+        for (var i = lastline; i < svgLine.length; i++) {
+            svgstr = '<line x1="' + parseInt(svgLine[i][0]);
+            svgstr += '" y1="' + parseInt(svgLine[i][1]);
+            svgstr += '" x2="' + parseInt(svgLine[i][2]);
+            svgstr += '" y2="' + parseInt(svgLine[i][3]);
+            svgstr += '" stroke="' + svgLine[i][4] + '" stroke-width="' + svgLine[i][5] + '" fill="none"/>\n';
+
+            tablelist(svghead + svgstr + '</svg>', table, "line");
+        }
+
+        for (var i = lastrect; i < svgRect.length; i++) {
+            var width = svgRect[i][2] - svgRect[i][0],
+                height = svgRect[i][3] - svgRect[i][1];
+            svgstr = '<rect x="' + parseInt(svgRect[i][0]);
+            svgstr += '" y="' + parseInt(svgRect[i][1]);
+            svgstr += '" width="' + parseInt(width);
+            svgstr += '" height="' + parseInt(height);
+            svgstr += '" stroke="' + svgRect[i][4] + '" stroke-width="' + svgRect[i][5] + '" fill="none"/>\n';
+
+            tablelist(svghead + svgstr + '</svg>', table, "rectangle");
+        }
+
+        for (var i = lastellipse; i < svgEllipse.length; i++) {
+            svgstr = '<ellipse cx="' + parseInt(svgEllipse[i][0]);
+            svgstr += '" cy="' + parseInt(svgEllipse[i][1]);
+            svgstr += '" rx="' + parseInt(svgEllipse[i][2]);
+            svgstr += '" ry="' + parseInt(svgEllipse[i][3]);
+            svgstr += '" stroke="' + svgEllipse[i][4] + '" stroke-width="' + svgEllipse[i][5] + '" fill="none"/>\n';
+
+            tablelist(svghead + svgstr + '</svg>', table, "ellipse");
+        }
+        allAnnotationSVG += svgstr;
+        lasttext = svgText.length;
+        lastline = svgLine.length;
+        lastrect = svgRect.length;
+        lastellipse = svgEllipse.length;
+    }
+    // end Display SVG table
+    // Generate table of SVG
+    function tablelist(svgstr1, table, annotationType) {
+			table = table.getElementsByTagName("tbody")[0];
+			var btn = document.createElement('input');
+			btn.style.backgroundColor = "#d9d9d9";
+			btn.type = "button";
+			btn.id = "postAnnotationBtn" + table.rows.length;
+			btn.value = "Post Annotation";
+			var lenrow = table.rows.length;
+			btn.onclick = function () {
+				postFHIR(lenrow)
+			};
+
+			var txtbox = document.createElement('input');
+			txtbox.style.backgroundColor = "white";
+			txtbox.type = "text";
+			txtbox.id = "PositionTB" + table.rows.length;
+			txtbox.disabled = 'false';
+			txtbox.value = svgstr1;
+
+			var dropdownform = document.createElement('select');
+			dropdownform.id = "FormReportType_" + table.rows.length;
+
+			var optionText = [];
+			if (modality == "MG") {
+				dropdownform.onchange = function () {
+					OnSelectedIndexChange(this, table, lenrow)
+				};
+				optionText = ["Finding Type", "Mammo Mass", "Mammo Calcification", "Mammo Architectural Distortion", "Mammo Focal Asymetry"]
+			}
+			else {
+				optionText = ["Finding Type", "unvailable findings report"];
+			}
+			for (var i = 0; i < optionText.length; i++) {
+				dropdownform.appendChild(option = document.createElement("option"));
+				option.value = i;
+				option.text = optionText[i];
+			}
+
+			table.appendChild(tr = document.createElement("tr"));
+			tr.appendChild(td = document.createElement("td"));
+			td.innerHTML = annotationType;
+			tr.appendChild(td = document.createElement("td"));
+			td.appendChild(txtbox);
+			tr.appendChild(td = document.createElement("td"));
+			td.appendChild(btn);
+			tr.appendChild(td = document.createElement("td"));
+			td.appendChild(dropdownform);
+			tr.appendChild(td = document.createElement("td"));
+			td.id = "findingID" + table.rows.length;
+			td.innerHTML = "";
+		}
+        function clearLastLi(){
+            for(var i=0;i<lastLi.length;i++){
+                lastLi[i].style.backgroundColor = "";
+            }
+            drawCanvas.onmousedown = null;
+            drawCanvas.onmousemove = null;
+        drawCanvas.onmouseup = null;
+        }
+    /**
+     * Click image on the right image list
+     */
+    function selectImg(object){
+        panning = false;
+        if(previmgclicked!=""){previmgclicked.style.border = "none";}
+        object.style.border = "5px solid red";
+        previmgclicked = object;
+
+        img = new Image;
+        img.src = object.src;
+        //ctx.drawImage(img, 10, 10);
+        sourceImage.width = img.width;
+        sourceImage.height = img.height;
+        setDefaultMode();
+        zoom(0);
+    }
+
+    </script>
     </html>
+
