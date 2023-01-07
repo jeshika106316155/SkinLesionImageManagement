@@ -42,21 +42,12 @@
                         <li onclick="showRecord()" class="fontSize">Insert Value</li>
                     </ul>
                 </li>
-                <li id="AnnotationList">
-                    <img alt="Annotation" title="Annotation" id="annotation" class="imgIcon" src="\assets\img\annotation.png">
-                    <ul class="ddl2" style="width: 100px; ">
-                        <li onclick="Text('AnnotationList',this)" class="fontSize">Text</li>
-                        <li onclick="Line('AnnotationList',this)" class="fontSize">Line</li>
-                        <li onclick="Rect('AnnotationList',this)" class="fontSize">Rectangle</li>
-                        <li onclick="Ellipse('AnnotationList',this)" class="fontSize">Ellipse</li>
-                    </ul>
-                </li>
                 <li id="StrokeWidthList">
                     <img alt="Stroke Width" title="Stroke Width" id="strokeWidth" src="\assets\img\strokeWidth.png" class="imgIcon">
-                    <ul class="ddl3" style="width: 100px;">
+                    <ul class="ddl2" style="width: 100px;">
                         <li value="1" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel1.png"></li>
                         <li value="2" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel2.png"></li>
-                        <li value="3" onclick="strokeWidth('StrokeWidthList',value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel3.png"></li>
+                        <li value="3" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel3.png"></li>
                         <li value="4" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel4.png"></li>
                         <li value="5" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel5.png"></li>
                         <li value="6" onclick="strokeWidth('StrokeWidthList',this,value)"><img class="strokeWidthImg" src="\assets\img\strokeLevel6.png"></li>
@@ -68,8 +59,17 @@
                 </li>
                 <li id="StrokeColorList">
                     <img alt="Stroke Color" title="Stroke Color" id="strokeColor" src="\assets\img\strokeColor.png" class="imgIcon">
-                    <ul class="ddl4" style="width: 100px;">
-                        <li style="height: 40px;"><input type="color" onchange="strokeColor('StrokeColorList',this.value)" value="#000000" style="width:85px; display: block; margin:8px 4px;"></li>
+                    <ul class="ddl3" style="width: 100px;">
+                        <li style="height: 40px;"><input type="color" onchange="strokeColor('StrokeColorList',this,value)" value="#000000" style="width:85px; display: block; margin:8px 4px;"></li>
+                    </ul>
+                </li>
+                <li id="AnnotationList">
+                    <img alt="Annotation" title="Annotation" id="annotation" class="imgIcon" src="\assets\img\annotation.png">
+                    <ul class="ddl4" style="width: 100px; ">
+                        <li onclick="Text('AnnotationList',this)" class="fontSize">Text</li>
+                        <li onclick="Line('AnnotationList',this)" class="fontSize">Line</li>
+                        <li onclick="Rect('AnnotationList',this)" class="fontSize">Rectangle</li>
+                        <li onclick="Ellipse('AnnotationList',this)" class="fontSize">Ellipse</li>
                     </ul>
                 </li>
                 <li id="ZoomList">
@@ -251,7 +251,24 @@
 		scaledImage.prevHeight = canvasHeight;
 	}
     /** */
-    function zoom(scale) {
+    function zoom(parObject, thisObject, scale) {
+        if(parObject!=null && thisObject!=null)
+        {
+            clearLastLi();
+            parObject = document.getElementById(parObject);
+            if (parObject.style.backgroundColor == "") {
+                parObject.style.backgroundColor = "#999966";
+                parObject.style.backgroundColor = "#999966";
+                thisObject.style.backgroundColor = "#999966";
+                lastLi = [];
+                lastLi.push(parObject);
+                lastLi.push(thisObject);
+            }
+            else{
+                parObject.style.backgroundColor = "";
+                thisObject.style.backgroundColor = "";
+            }
+        }
         if (scale == 0) scale = fitCanvasRatio;
 
         scaleRatio = scale; //scaledImage.width/ sourceImage.width;
@@ -285,7 +302,7 @@
         }
         else scaleRatio = scaleRatio + 0.1;
 
-        zoom(scaleRatio);
+        zoom(null,null,scaleRatio);
         return false; // Prevent page from scrolling
     }
     //Panning
@@ -344,17 +361,43 @@
     //End of Panning
 
     // Annotation
-    function strokeColor(color) {
-        svgColor = color;
-        ctx.strokeStyle = color;
-        drawCtx.strokeStyle = color;
-        ctx.fillStyle = color;
+    function strokeColor(parObject, thisObject,color) {
+        clearLastLi();
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966";
+            lastLi = [];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+            svgColor = color;
+            ctx.strokeStyle = color;
+            drawCtx.strokeStyle = color;
+            ctx.fillStyle = color;
+        }
+        else{
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+        }
     }
 
-    function strokeWidth(width) {
-        svgStrokeWidth = width;
-        ctx.lineWidth = width;
-        drawCtx.lineWidth = width;
+    function strokeWidth(parObject, thisObject, width) {
+        parObject = document.getElementById(parObject);
+        if (parObject.style.backgroundColor == "") {
+            parObject.style.backgroundColor = "#999966";
+            thisObject.style.backgroundColor = "#999966";
+            lastLi = [];
+            lastLi.push(parObject);
+            lastLi.push(thisObject);
+            svgStrokeWidth = width;
+            ctx.lineWidth = width;
+            drawCtx.lineWidth = width;
+        }
+        else{
+            parObject.style.backgroundColor = "";
+            thisObject.style.backgroundColor = "";
+        }
     }
 
     function Text(parObject,thisObject) {
@@ -770,7 +813,7 @@
         sourceImage.width = img.width;
         sourceImage.height = img.height;
         setDefaultMode();
-        zoom(0);
+        zoom(null,null,0);
     }
 
     </script>
