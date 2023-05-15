@@ -13,13 +13,15 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>WebcamJS Test Page</title>
+    <title>Skin lesion report creator</title>
     <link href="/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/css/reportCreator.css" rel="stylesheet" />
-
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js" ></script>
 </head>
 <body >
+    <div id="liveAlertPlaceholder"></div>
+    
     <div class="header">
         <h1 style="color: gold;">REPORT CREATOR</h1>
     </div>
@@ -27,21 +29,21 @@
         <table align="center" class="table" style="color: gold;width:80%">
             <tr>
                 <td>Encounter ID：<input type="text" id="encounterID" value="123" /></td>
-                <td>Practitioner ID：<input type="text" id="practitionerID" /></td>
-                <td>Patient ID：<input type="text" id="patientID" /></td>
+                <td>Practitioner ID：<input type="text" id="practitionerID" value="PractitionerRole/af055cb6-bd06-4ce4-9967-90d4e9f25044" /></td>
+                <td>Patient ID：<input type="text" id="patientID" value="88df8172-9f58-4a0f-bcca-bcdcd5ea6485" /></td>
             </tr>
         </table>
     </div>
     <div id="body" style="background-color:#202020;">
         <div class="column" style="background-color:#202020; width: 11%;">
             <ul id="nav">
-                <li>
+               @* <li>
                     <img alt="Window Level" title="Window Level" id="windowLevel" src="\assets\img\windowLevel.png" class="imgIcon">
                     <ul class="ddl1" style="width: 100px;">
                         <li onclick="windowLW()" class="fontSize">Adjust</li>
                         <li onclick="showRecord()" class="fontSize">Insert Value</li>
                     </ul>
-                </li>
+                </li>*@
                 <li id="StrokeWidthList">
                     <img alt="Stroke Width" title="Stroke Width" id="strokeWidth" src="\assets\img\strokeWidth.png" class="imgIcon">
                     <ul class="ddl2" style="width: 100px;">
@@ -105,6 +107,7 @@
                     <thead>
                         <tr style="background-color:white; font-weight:bold; color: black;">
                             <th>Type Annotation</th>
+                            <th>Lesion Name</th>
                             <th>SVG Annotation</th>
                             <th>Post Annotation</th>
                             <th>Finding Type</th>
@@ -115,40 +118,6 @@
                     </tbody>
                 </table>
                 <br />
-                <table class="table">
-                    <tr>
-                        <td> Encounter ID：</td>
-                        <td><input type="text" id="encounterID" value="123" /></td>
-                    </tr>
-                    <tr>
-                        <td> Practitioner ID：</td>
-                        <td><input type="text" id="practitionerID" /></td>
-                    </tr>
-                    <tr>
-                        <td> Patient ID：</td>
-                        <td><input type="text" id="patientID" /></td>
-                    </tr>
-                    <tr>
-                        <td> Image: </td>
-                        <td style="display:flex">
-                            <div id="webcam_block" class="panel-body" style="display:none;border: solid 1px;align-content:center">
-                                <div id="my_camera"></div>
-                                <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()" style="width:100%">
-                            </div>
-                            <div>
-                                <input type="button" class="btn btn-success" value="Take Photo" onClick="display_webcam()">
-                                <input type="file" name="my_file" id="my-file" style="display:none" onchange="store_image()" accept="image/png, image/gif, image/jpeg"><input type="button" class="btn btn-success" value="Browse Photo" onClick="browse_image()">
-                            </div>
-                        </td>
-                    </tr>
-                    <tr><td colspan="2" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Create Report" onClick="create_report()"></td></tr>
-                    <tr>
-                        <td colspan="2">
-                            <table id="captured_image_table"></table>
-                        </td>
-                    </tr>
-                </table>
-                <br />
             </div>
         </div>
         <div class="column" style="background-color:#202020; width: 29.5%;">
@@ -157,6 +126,7 @@
         
     </div>
     </body>
+<script src="/lib/jquery/dist/jquery.min.js"></script>
     <script language="JavaScript">
 
     //Display images to imageListTable
@@ -226,7 +196,7 @@
         svgFontType = "70px Arial";
     //end Annotation
     var lastLi=[]; //Last clicked li
-    modality = "MG";//Display annotation table
+    modality = "XC";//Display annotation table, DMS= Dermoscopy, XC= External-camera Photography
     //ScrollZoom in canvas
     document.getElementById("allcanvas").addEventListener("wheel", scrollZoom);
     
@@ -380,6 +350,7 @@
             parObject.style.backgroundColor = "";
             thisObject.style.backgroundColor = "";
         }
+        alertfunc('Please select the annotation shape!', 'info')
     }
 
     function strokeWidth(parObject, thisObject, width) {
@@ -398,6 +369,7 @@
             parObject.style.backgroundColor = "";
             thisObject.style.backgroundColor = "";
         }
+        alertfunc('Please select the annotation color!', 'info')
     }
 
     function Text(parObject,thisObject) {
@@ -758,17 +730,25 @@
 			txtbox.disabled = 'false';
 			txtbox.value = svgstr1;
 
+            var txtboxLesionName = document.createElement('input');
+			txtboxLesionName.style.backgroundColor = "white";
+			txtboxLesionName.type = "text";
+			txtboxLesionName.id = "LesionNameTB_" + table.rows.length;
+			txtboxLesionName.value = "";
+
 			var dropdownform = document.createElement('select');
 			dropdownform.id = "FormReportType_" + table.rows.length;
-
+            dropdownform.onchange = function () {
+            OnSelectedIndexChange(this, table, lenrow)
+        };
 			var optionText = [];
 			if (modality == "MG") {
-				dropdownform.onchange = function () {
-					OnSelectedIndexChange(this, table, lenrow)
-				};
 				optionText = ["Finding Type", "Mammo Mass", "Mammo Calcification", "Mammo Architectural Distortion", "Mammo Focal Asymetry"]
 			}
-			else {
+			else if(modality == "XC"){
+   				optionText = ["Finding Type", "Skin lesion finding"];
+            }
+            else {
 				optionText = ["Finding Type", "unvailable findings report"];
 			}
 			for (var i = 0; i < optionText.length; i++) {
@@ -780,8 +760,10 @@
 			table.appendChild(tr = document.createElement("tr"));
 			tr.appendChild(td = document.createElement("td"));
 			td.innerHTML = annotationType;
-			tr.appendChild(td = document.createElement("td"));
-			td.appendChild(txtbox);
+            tr.appendChild(td = document.createElement("td"));
+			td.appendChild(txtboxLesionName);
+            tr.appendChild(td = document.createElement("td"));
+            td.appendChild(txtbox);
 			tr.appendChild(td = document.createElement("td"));
 			td.appendChild(btn);
 			tr.appendChild(td = document.createElement("td"));
@@ -807,6 +789,8 @@
         object.style.border = "5px solid red";
         previmgclicked = object;
 
+        //delete ctx annotation
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         img = new Image;
         img.src = object.src;
         //ctx.drawImage(img, 10, 10);
@@ -814,8 +798,110 @@
         sourceImage.height = img.height;
         setDefaultMode();
         zoom(null,null,0);
+        //delete previous annotation cookies
+        document.cookie = 'AnnotationIDs=; Max-Age=0'
     }
+    /**
+     * Post annotation to FHIR Server
+     */
+    function postFHIR(rowslength) {
+			var annotationType = document.getElementById("myTable").getElementsByTagName("tbody")[0].rows[rowslength].cells[0].innerHTML;
+			document.getElementById("postAnnotationBtn" + rowslength).style.color = "black";
+			document.getElementById("postAnnotationBtn" + rowslength).value = "posted";
+			document.getElementById("postAnnotationBtn" + rowslength).disabled = true;
+			var svg = document.getElementById("PositionTB" + rowslength).value;
+			svg = window.btoa(svg)
 
+            var annotationInfo = {
+                "encounterID": document.getElementById("encounterID").value,
+                "patientID": document.getElementById("patientID").value,
+                "performerID": document.getElementById("practitionerID").value,
+                "svgInput": svg,
+                "rowslength": rowslength.toString(),
+                "imageURL": img.src
+            };
+            //var encounterId = document.getElementById("encounterID").value;
+            // Create document reference
+            $.ajax({
+                type: "POST",
+                url: '/ReportCreator/UploadAnnotationObservation',
+            data: JSON.stringify(annotationInfo),
+                contentType: "application/json",
+                dataType: 'json',
+                processData: false,
+                success: function (response) {
+                    console.log(response)
+                    alert("Annotation uploaded!");
+                },
+                error: function (error) {
+                    alert("Post annotation error: " + error);
+                }
+            });
+            // Redirect to report creator
+		}
+    function alertfunc(message, type) {
+            var alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible fade show center-block" role="alert" style="width:40%;margin: auto;text-align: center;position:absolute;left:0;right:0;">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="margin: auto;"></button></div>';
+
+            alertPlaceholder.append(wrapper);
+        }
+    function OnSelectedIndexChange(object, table, lenrow){
+            var lesionname = document.getElementById("LesionNameTB_"+lenrow).value;
+            if (lesionname == "") {
+                alertfunc("Please fill up the lesion name!", "danger");
+                return;
+            }
+            var text = object.options[object.selectedIndex].text;
+            if (text == "Skin lesion finding") {
+            if (checkcookieexist(lenrow, "AnnotationIDs")) {
+                window.open("/SkinLesionFinding?annotationnum=" + (lenrow) + "&&lesionname=" + lesionname, "SkinLesionFinding", "location=1,status=1,scrollbars=1,  width=1000,height=1000");
+                }
+            else { alertfunc("Please post the annotation firstly!", "danger"); }
+           }
+        }
+    function showFindingID(annotationnum, findingid) {
+        node = (document.getElementById("findingID" + (parseInt(annotationnum)+1)));
+        while (last = node.lastChild) node.removeChild(last);
+        (document.getElementById("findingID" + (parseInt(annotationnum)+1))).appendChild(a = document.createElement("a"));
+		a.innerHTML = findingid;
+        a.id = "a_"+annotationnum;
+        a.href = "#";
+        a.onclick = function () {
+            redirect('/SkinLesionFinding?findingID=' + this.innerHTML + "&&annotationnum=" + ((this.id).split('_'))[1] );
+			};
+        //a.href = "/SkinLesionFinding?findingID=" + findingid + "&&annotationnum=" + annotationnum;
+    }
+    function redirect(redirectUrl){
+        window.open(redirectUrl,status=1,scrollbars=1,  width=1000,height=1000);
+    }
+    function checkcookieexist(annotationnum, cookieName){
+        var cookies = getCookie(cookieName);
+        var cookiesjson = JSON.parse(cookies);
+        if (cookiesjson.hasOwnProperty(annotationnum)) {
+            return true;
+        }
+        return false;
+    }
+    function getCookie(name){
+        return document.cookie.split('; ').reduce((r, v) => {
+            const parts = v.split('=')
+            return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+        }, '')
+    }
+    function createDReport(){
+        // Check wether annotation have its finding
+        var annotationcookies = getCookie("AnnotationIDs")
+        var anncookiesjson = JSON.parse(annotationcookies);
+        Object.keys(anncookiesjson).forEach(function (k) {
+            if (checkcookieexist(anncookiesjson[k], "FindingIDs") == false) {
+                alertfunc("please post the annotation firstly!", "danger");
+                return;
+            }
+        });
+     // Redirect to diagnostic report html
+        window.open("/DiagnosticReport", "status=1,scrollbars=1,  width=1000,height=1000");
+    }
     </script>
     </html>
 

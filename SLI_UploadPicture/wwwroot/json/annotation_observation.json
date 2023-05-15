@@ -1,0 +1,53 @@
+{
+  "resourceType": "Observation",
+  "status": "final",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code": "imaging",
+          "display": "Imaging"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+        "code": "image.annotation"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "",
+    "display": "Will Smith"
+  },
+  "effectiveDateTime": "",
+  "performer": [
+    {
+      "reference": "",
+      "display": ""
+    }
+  ],
+  "derivedFrom": [
+    {
+      "reference": ""
+    }
+  ],
+  "component": [
+    {
+      "code": {
+        "coding": [
+          {
+            "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+            "code": "annotation.svg",
+            "display": "SVG Annotation"
+          }
+        ]
+      },
+      "valueString": "PHN2ZyB3aWR0aD0iMjU2MCIgaGVpZ2h0PSIzMzI4Ij48ZWxsaXBzZSBjeD0iMTQ5MiIgY3k9IjEzMjUiIHJ4PSIzNzEiIHJ5PSI1MDQiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+"
+    }
+  ]
+}

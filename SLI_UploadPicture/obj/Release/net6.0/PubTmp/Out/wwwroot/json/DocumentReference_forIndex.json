@@ -1,0 +1,47 @@
+{
+  "resourceType": "DocumentReference",
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+        "code": "skinlesion.report.document",
+        "display": "Skin lesion report document"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+          "code": "imaging.report",
+          "display": "Imaging report"
+        }
+      ]
+    }
+  ],
+  "subject": {
+    "reference": "",
+    "display": ""
+  },
+  "date": "",
+  "author": [
+    {
+      "reference": "",
+      "display": ""
+    }
+  ],
+  "custodian": {
+    "reference": "",
+    "display": ""
+  },
+  "content": [
+    {
+      "attachment": {
+        "url": "",
+        "title": ""
+      }
+    }
+  ]
+}

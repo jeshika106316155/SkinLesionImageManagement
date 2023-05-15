@@ -1,0 +1,99 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Skin Lesion Finding</title>
+    <link href="/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="/css/SkinLesionFinding.css" rel="stylesheet" />*@
+    <link href="/css/reportCreator.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <div id="liveAlertPlaceholder"></div>
+
+    <div class="header">
+        <h1 style="color: gold;align:center">Skin Lesion Doagnostic Report</h1>
+    </div>
+    <div class="basicInformation">
+        <form id="skinlesionDiagnosticReportform">
+            <table align="center" class="table" style="color: wheat;width:80%;background-color: #4a4947;margin-top: 20px;border: none;">
+                <thead>
+                <th>Skin Information Diagnotic</th>
+                </thead>
+                <tr>
+                    <td class="td-right-none">Disease <font color="red">*</font></td>
+                    <td class="td-left-none">: <select id="skin_diseases"></select></td>
+                </tr>
+                <tr>
+                    <td class="td-right-none">Conclussion<font color="red">*</font></td>
+                    <td class="td-left-none">
+                        : <textarea id="conclusion" rows="4" cols="50"></textarea>
+                    </td>
+                </tr>
+                <tr><td colspan="8" align="right"><input type="button" style="align-self:self-end" class="btn btn-success" value="Submit" onClick="create_report()"></td></tr>
+            </table>
+        </form>
+    </div>
+    <script src="/webcamjs/webcam.js"></script>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        initiate();
+        function initiate() {
+            var skindiseasesarray = JSON.parse(@Json.Serialize(@ViewBag.skindiseasescode));
+            var skindiseasesdropdown = document.getElementById("skin_diseases");
+            for (var i = 0; i < skindiseasesarray.length; i++) {
+                if (skindiseasesarray[i] != undefined) {
+                    skindiseasesdropdown.appendChild(option = document.createElement("option"));
+                    option.value = skindiseasesarray[i]["code"];
+                    option.text = skindiseasesarray[i]["display"];
+                }
+            }
+        }
+        function create_report(){
+            //check("skinlesionreportform");
+            var elements = document.getElementById("skinlesionDiagnosticReportform").elements;
+            if (elements.length != 3) {
+                alertfunc("please fill up all the field!", "danger");
+                return;
+            }
+            var reportInfo = {};
+            for (var i = 0; i < elements.length; i++) {
+                var item = elements.item(i);
+                reportInfo[item.id] = item.value;
+            }
+            // Create document reference
+            $.ajax({
+                type: "POST",
+                url: '/DiagnosticReport/UploadReportSkinLesion',
+                data: JSON.stringify(reportInfo),
+                contentType: "application/json",
+                dataType: 'json',
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    alert("Report uploaded!");
+                    window.opener.showFindingID(@Json.Serialize(@ViewBag.annotationnum), response.id);
+                    window.close();
+                },
+                error: function (error) {
+                    alert("Upload report error: " + error);
+                }
+            });
+            }
+    </script>
+</body>
+</html>

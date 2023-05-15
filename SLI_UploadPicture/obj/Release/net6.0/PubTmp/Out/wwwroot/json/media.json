@@ -1,0 +1,42 @@
+{
+  "resourceType": "Media",
+  "status": "completed",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/media-type",
+        "code": "image",
+        "display": "Image"
+      }
+    ]
+  },
+  "modality": {
+    "coding": [
+      {
+        "system": "https://dicom.nema.org/",
+        "code": "XC",
+        "display": "External-camera Photography"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "",
+    "display": ""
+  },
+  "createdDateTime": "",
+  "operator": {
+    "reference": "",
+    "display": ""
+  },
+  "device": {
+    "reference": "Device/b23b77a6-eaae-4e9b-be51-0a2c499ddabc",
+    "display": "NIKON01"
+  },
+  "height": 2000,
+  "width": 3008,
+  "content": {
+    "contentType": "",
+    "url": "",
+    "title": ""
+  }
+}

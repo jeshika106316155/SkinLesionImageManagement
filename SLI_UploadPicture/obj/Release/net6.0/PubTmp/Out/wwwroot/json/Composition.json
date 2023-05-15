@@ -1,0 +1,63 @@
+{
+  "resourceType": "Composition",
+  "status": "final",
+  "type": {
+    "coding": [
+      {
+        "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+        "code": "skinlesion.document",
+        "display": "Skin lesion document"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "LP173421-1",
+          "display": "Report"
+        }
+      ]
+    }
+  ],
+  "subject": [
+    {
+      "reference": "Patient/88df8172-9f58-4a0f-bcca-bcdcd5ea6485",
+      "display": "Will Smith"
+    }
+  ],
+  "date": "2023-04-05T09:10:14Z",
+  "author": [
+    {
+      "reference": "PractitionerRole/af055cb6-bd06-4ce4-9967-90d4e9f25044",
+      "display": "Dr. Carolina SpKK"
+    }
+  ],
+  "title": "Skin lesion report",
+  "custodian": {
+    "reference": "Organization/4af8db0c-50d1-406e-a134-d2972c79f194",
+    "display": "Yuli Hospital"
+  },
+  "section": [
+    {
+      "entry": [
+        {
+          "reference": "DocumentReference/665f781e-5666-4e22-a3c9-638d23ca1043"
+        },
+        {
+          "reference": "DocumentReference/4adae292-6205-4952-9663-144e42c20671"
+        },
+        {
+          "reference": "Observation/eeb9fac2-2059-4833-9de3-ffc0894f1aeb"
+        },
+        {
+          "reference": "Observation/6c17cb33-3b8c-4d9f-81f9-1cd7dd74f844"
+        },
+        {
+          "reference": "DiagnosticReport/73c7e525-8782-4efb-ac39-7ec3b13e5b68"
+        }
+      ]
+    }
+  ]
+}

@@ -59,9 +59,17 @@
               "target": "Package",
               "version": "[13.0.2, )"
             },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[110.2.0, )"
+            },
             "SSH.NET": {
               "target": "Package",
               "version": "[2020.0.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.30.1, )"
             }
           },
           "imports": [

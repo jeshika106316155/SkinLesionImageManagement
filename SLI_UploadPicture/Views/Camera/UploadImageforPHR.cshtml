@@ -226,7 +226,7 @@
                         }
                     },
                     error: function (error) {
-                        alert("error");
+                        alert(error);
                     }
                 });
             } catch (e) {
@@ -254,7 +254,7 @@
                             }
                         },
                         error: function (error) {
-                            alert("error");
+                            alert(error);
                         }
                     });
                 } catch (e) {
@@ -280,9 +280,9 @@
                 dataType: 'json',
                 processData: false,
                 success: function (response) {
-                    console.log(response)
+                    console.log(response);
                     alert("Pictures uploaded!");
-                    window.location.href = '/ReportCreator?DocumentReferenceId=' + response.id;
+                    window.location.href = '/ReportCreator?documentbundle=' + @Json.Serialize(@Configuration.GetSection("Repository_gateway_fhir").Value)+"Bundle/" + response.id;
                 },
                 error: function (error) {
                     alert("Post documentReference error: " + error);

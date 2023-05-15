@@ -1,0 +1,67 @@
+{
+  "resourceType": "Observation",
+  "status": "final",
+  "identifier": [
+    {
+      "use": "official",
+      "system": "YuliHospital/LesionID",
+      "value": "Lesion01"
+    }
+  ],
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code": "imaging",
+          "display": "Imaging"
+        }
+      ]
+    },
+    {
+      "coding": [
+        {
+          "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+          "code": "image.finding",
+          "display": "Image Finding"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "https://203.64.84.150:58443/r5/fhir/CodeSystem/8f414151-bf5f-46ce-94fe-f96d9e867d29",
+        "code": "skinlesion.image.finding",
+        "display": "Skin lesion image finding"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "",
+    "display": ""
+  },
+  "effectiveDateTime": "",
+  "performer": [
+    {
+      "reference": "",
+      "display": ""
+    }
+  ],
+  "bodySite": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "",
+        "display": ""
+      }
+    ]
+  },
+  "derivedFrom": [
+    {
+      "reference": ""
+    }
+  ],
+  "component": [
+  ]
+}
